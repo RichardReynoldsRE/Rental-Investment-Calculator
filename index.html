@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rental Investment Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .calculate-btn, .action-buttons {
+                display: none;
+            }
+
+            .section {
+                break-inside: avoid;
+            }
+
+            .input-group {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+            }
+
+            input {
+                border: none;
+                font-weight: bold;
+                text-align: right;
+            }
+        }
+
+        .results {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .results h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-card h3 {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .result-card .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .positive {
+            color: #28a745 !important;
+        }
+
+        .negative {
+            color: #dc3545 !important;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏠 Rental Investment Calculator</h1>
+            <p>Analyze your property investment potential</p>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>Property Details</h2>
+                <div class="input-group">
+                    <label for="propertyAddress">Property Address</label>
+                    <input type="text" id="propertyAddress" placeholder="123 Main St, City, State ZIP">
+                </div>
+                <div class="input-group">
+                    <label for="purchasePrice">Purchase Price ($)</label>
+                    <input type="number" id="purchasePrice" value="300000" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="downPayment">Down Payment (%)</label>
+                    <input type="number" id="downPayment" value="20" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label for="interestRate">Interest Rate (%)</label>
+                    <input type="number" id="interestRate" value="6.5" step="0.1" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="loanTerm">Loan Term (years)</label>
+                    <input type="number" id="loanTerm" value="30" min="1">
+                </div>
+                <div class="input-group">
+                    <label for="closingCosts">Closing Costs ($)</label>
+                    <input type="number" id="closingCosts" value="5000" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="oneTimeCosts">One-Time Costs (Repairs, Renovations) ($)</label>
+                    <input type="number" id="oneTimeCosts" value="0" min="0">
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Income & Expenses</h2>
+                <div class="input-group">
+                    <label for="monthlyRent">Monthly Rent ($)</label>
+                    <input type="number" id="monthlyRent" value="2500" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="propertyTax">Annual Property Tax ($)</label>
+                    <input type="number" id="propertyTax" value="3600" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="insurance">Annual Insurance ($)</label>
+                    <input type="number" id="insurance" value="1200" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="maintenance">Monthly Maintenance ($)</label>
+                    <input type="number" id="maintenance" value="200" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="hoaFees">Monthly HOA Fees ($)</label>
+                    <input type="number" id="hoaFees" value="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="otherCosts">Other Monthly Costs ($)</label>
+                    <input type="number" id="otherCosts" value="0" min="0">
+                </div>
+                <div class="input-group">
+                    <label for="vacancy">Vacancy Rate (%)</label>
+                    <input type="number" id="vacancy" value="5" min="0" max="100">
+                </div>
+                <div class="input-group">
+                    <label for="propertyMgmt">Property Management (%)</label>
+                    <input type="number" id="propertyMgmt" value="8" min="0" max="100">
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculate()">Calculate Investment Returns</button>
+
+            <div class="action-buttons">
+                <button class="action-btn" onclick="saveData()">💾 Save</button>
+                <button class="action-btn" onclick="document.getElementById('fileInput').click()">📁 Load</button>
+                <button class="action-btn" onclick="printReport()">🖨️ Print</button>
+                <button class="action-btn" onclick="emailReport()">📧 Email</button>
+            </div>
+            <input type="file" id="fileInput" class="file-input" accept=".json" onchange="loadData(event)">
+
+            <div class="results" id="results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+            const downPaymentPct = parseFloat(document.getElementById('downPayment').value) || 0;
+            const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+            const loanTerm = parseFloat(document.getElementById('loanTerm').value) || 0;
+            const closingCosts = parseFloat(document.getElementById('closingCosts').value) || 0;
+            const oneTimeCosts = parseFloat(document.getElementById('oneTimeCosts').value) || 0;
+            const monthlyRent = parseFloat(document.getElementById('monthlyRent').value) || 0;
+            const propertyTax = parseFloat(document.getElementById('propertyTax').value) || 0;
+            const insurance = parseFloat(document.getElementById('insurance').value) || 0;
+            const maintenance = parseFloat(document.getElementById('maintenance').value) || 0;
+            const hoaFees = parseFloat(document.getElementById('hoaFees').value) || 0;
+            const otherCosts = parseFloat(document.getElementById('otherCosts').value) || 0;
+            const vacancyRate = parseFloat(document.getElementById('vacancy').value) || 0;
+            const propertyMgmt = parseFloat(document.getElementById('propertyMgmt').value) || 0;
+
+            const downPaymentAmount = purchasePrice * (downPaymentPct / 100);
+            const loanAmount = purchasePrice - downPaymentAmount;
+            const monthlyInterestRate = (interestRate / 100) / 12;
+            const numberOfPayments = loanTerm * 12;
+
+            let monthlyMortgage = 0;
+            if (loanAmount > 0 && monthlyInterestRate > 0) {
+                monthlyMortgage = loanAmount * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+            }
+
+            const effectiveMonthlyRent = monthlyRent * (1 - vacancyRate / 100);
+            const propertyMgmtFee = effectiveMonthlyRent * (propertyMgmt / 100);
+            const monthlyPropertyTax = propertyTax / 12;
+            const monthlyInsurance = insurance / 12;
+
+            const totalMonthlyExpenses = monthlyMortgage + monthlyPropertyTax + monthlyInsurance + maintenance + hoaFees + otherCosts + propertyMgmtFee;
+            const monthlyCashFlow = effectiveMonthlyRent - totalMonthlyExpenses;
+            const annualCashFlow = monthlyCashFlow * 12;
+
+            const totalInvestment = downPaymentAmount + closingCosts + oneTimeCosts;
+            const cashOnCashReturn = totalInvestment > 0 ? (annualCashFlow / totalInvestment) * 100 : 0;
+
+            const annualIncome = monthlyRent * 12 * (1 - vacancyRate / 100);
+            const annualOperatingExpenses = (monthlyPropertyTax + monthlyInsurance + maintenance + hoaFees + otherCosts + propertyMgmtFee) * 12;
+            const noi = annualIncome - annualOperatingExpenses;
+            const capRate = purchasePrice > 0 ? (noi / purchasePrice) * 100 : 0;
+
+            displayResults({
+                totalInvestment,
+                monthlyMortgage,
+                effectiveMonthlyRent,
+                totalMonthlyExpenses,
+                monthlyCashFlow,
+                annualCashFlow,
+                cashOnCashReturn,
+                capRate,
+                noi
+            });
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            resultsDiv.style.display = 'block';
+            
+            const address = document.getElementById('propertyAddress').value;
+            const addressHTML = address ? `<p style="text-align: center; color: #666; margin-bottom: 15px; font-size: 1.1em;">📍 ${address}</p>` : '';
+            
+            const data = [
+                { label: 'Total Investment', value: formatCurrency(results.totalInvestment) },
+                { label: 'Monthly Mortgage', value: formatCurrency(results.monthlyMortgage) },
+                { label: 'Effective Monthly Rent', value: formatCurrency(results.effectiveMonthlyRent) },
+                { label: 'Total Monthly Expenses', value: formatCurrency(results.totalMonthlyExpenses) },
+                { label: 'Monthly Cash Flow', value: results.monthlyCashFlow, colored: true, isCurrency: true },
+                { label: 'Annual Cash Flow', value: results.annualCashFlow, colored: true, isCurrency: true },
+                { label: 'Cash-on-Cash Return', value: results.cashOnCashReturn, colored: true, isPercent: true },
+                { label: 'Cap Rate', value: results.capRate, colored: true, isPercent: true },
+                { label: 'Net Operating Income', value: results.noi, colored: true, isCurrency: true }
+            ];
+
+            let resultsHTML = `<h2>Investment Analysis</h2>${addressHTML}`;
+            resultsHTML += '<div class="results-grid">';
+            
+            resultsHTML += data.map(item => {
+                let displayValue = item.value;
+                let colorClass = '';
+                
+                if (item.colored) {
+                    const numValue = typeof item.value === 'number' ? item.value : parseFloat(item.value);
+                    colorClass = numValue >= 0 ? 'positive' : 'negative';
+                    const prefix = numValue >= 0 ? '+' : '';
+                    
+                    if (item.isCurrency) {
+                        displayValue = prefix + formatCurrency(Math.abs(numValue));
+                        if (numValue < 0) displayValue = '-' + formatCurrency(Math.abs(numValue));
+                    } else if (item.isPercent) {
+                        displayValue = prefix + numValue.toFixed(2) + '%';
+                    }
+                }
+                
+                return `
+                    <div class="result-card">
+                        <h3>${item.label}</h3>
+                        <div class="value ${colorClass}">${displayValue}</div>
+                    </div>
+                `;
+            }).join('');
+
+            resultsHTML += '</div>';
+            resultsDiv.innerHTML = resultsHTML;
+
+            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function saveData() {
+            const data = {
+                propertyAddress: document.getElementById('propertyAddress').value,
+                purchasePrice: document.getElementById('purchasePrice').value,
+                downPayment: document.getElementById('downPayment').value,
+                interestRate: document.getElementById('interestRate').value,
+                loanTerm: document.getElementById('loanTerm').value,
+                closingCosts: document.getElementById('closingCosts').value,
+                oneTimeCosts: document.getElementById('oneTimeCosts').value,
+                monthlyRent: document.getElementById('monthlyRent').value,
+                propertyTax: document.getElementById('propertyTax').value,
+                insurance: document.getElementById('insurance').value,
+                maintenance: document.getElementById('maintenance').value,
+                hoaFees: document.getElementById('hoaFees').value,
+                otherCosts: document.getElementById('otherCosts').value,
+                vacancy: document.getElementById('vacancy').value,
+                propertyMgmt: document.getElementById('propertyMgmt').value
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const address = data.propertyAddress ? data.propertyAddress.replace(/[^a-z0-9]/gi, '_') : 'property';
+            a.download = `rental_investment_${address}_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    document.getElementById('propertyAddress').value = data.propertyAddress || '';
+                    document.getElementById('purchasePrice').value = data.purchasePrice || 0;
+                    document.getElementById('downPayment').value = data.downPayment || 0;
+                    document.getElementById('interestRate').value = data.interestRate || 0;
+                    document.getElementById('loanTerm').value = data.loanTerm || 0;
+                    document.getElementById('closingCosts').value = data.closingCosts || 0;
+                    document.getElementById('oneTimeCosts').value = data.oneTimeCosts || 0;
+                    document.getElementById('monthlyRent').value = data.monthlyRent || 0;
+                    document.getElementById('propertyTax').value = data.propertyTax || 0;
+                    document.getElementById('insurance').value = data.insurance || 0;
+                    document.getElementById('maintenance').value = data.maintenance || 0;
+                    document.getElementById('hoaFees').value = data.hoaFees || 0;
+                    document.getElementById('otherCosts').value = data.otherCosts || 0;
+                    document.getElementById('vacancy').value = data.vacancy || 0;
+                    document.getElementById('propertyMgmt').value = data.propertyMgmt || 0;
+
+                    alert('Data loaded successfully!');
+                } catch (error) {
+                    alert('Error loading file. Please make sure it is a valid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function emailReport() {
+            const address = document.getElementById('propertyAddress').value || 'Property';
+            const resultsDiv = document.getElementById('results');
+            
+            if (resultsDiv.style.display === 'none') {
+                alert('Please calculate the investment results first before emailing.');
+                return;
+            }
+
+            const subject = `Rental Investment Analysis - ${address}`;
+            const body = `Rental Investment Analysis Report\n\n` +
+                `Property: ${address}\n` +
+                `Purchase Price: ${document.getElementById('purchasePrice').value}\n` +
+                `Monthly Rent: ${document.getElementById('monthlyRent').value}\n\n` +
+                `View the complete analysis at: ${window.location.href}\n\n` +
+                `Note: Please calculate and review the full report for detailed metrics.`;
+
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+    </script>
+</body>
+</html>
