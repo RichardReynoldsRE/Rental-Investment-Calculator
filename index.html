@@ -545,6 +545,11 @@
                     <div class="help-text">Total property acquisition price</div>
                 </div>
                 <div class="input-group">
+                    <label for="improvementCosts">Cost of Improvements</label>
+                    <input type="number" id="improvementCosts" value="0" step="100" min="0">
+                    <div class="help-text">Planned upgrades or renovations</div>
+                </div>
+                <div class="input-group">
                     <label for="downPayment">Down Payment (%)</label>
                     <input type="number" id="downPayment" value="20" step="1" min="0" max="100">
                     <div class="help-text">Percentage of purchase price</div>
@@ -653,6 +658,7 @@
             const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
             const loanTerm = parseFloat(document.getElementById('loanTerm').value) || 0;
             const closingCosts = parseFloat(document.getElementById('closingCosts').value) || 0;
+            const improvementCosts = parseFloat(document.getElementById('improvementCosts').value) || 0;
             const oneTimeCosts = parseFloat(document.getElementById('oneTimeCosts').value) || 0;
             const monthlyRent = parseFloat(document.getElementById('monthlyRent').value) || 0;
             const propertyTax = parseFloat(document.getElementById('propertyTax').value) || 0;
@@ -682,7 +688,7 @@
             const monthlyCashFlow = effectiveMonthlyRent - totalMonthlyExpenses;
             const annualCashFlow = monthlyCashFlow * 12;
 
-            const totalInvestment = downPaymentAmount + closingCosts + oneTimeCosts;
+            const totalInvestment = downPaymentAmount + closingCosts + improvementCosts + oneTimeCosts;
             const cashOnCashReturn = totalInvestment > 0 ? (annualCashFlow / totalInvestment) * 100 : 0;
 
             const annualIncome = monthlyRent * 12 * (1 - vacancyRate / 100);
@@ -841,6 +847,7 @@
             const data = {
                 propertyAddress: document.getElementById('propertyAddress').value,
                 purchasePrice: document.getElementById('purchasePrice').value,
+                improvementCosts: document.getElementById('improvementCosts').value,
                 downPayment: document.getElementById('downPayment').value,
                 interestRate: document.getElementById('interestRate').value,
                 loanTerm: document.getElementById('loanTerm').value,
@@ -879,6 +886,7 @@
                     
                     document.getElementById('propertyAddress').value = data.propertyAddress || '';
                     document.getElementById('purchasePrice').value = data.purchasePrice || 0;
+                    document.getElementById('improvementCosts').value = data.improvementCosts || 0;
                     document.getElementById('downPayment').value = data.downPayment || 0;
                     document.getElementById('interestRate').value = data.interestRate || 0;
                     document.getElementById('loanTerm').value = data.loanTerm || 0;
