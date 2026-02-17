@@ -3,211 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rental Investment Calculator</title>
+    <title>Rental Investment Calculator | Richard Reynolds Tools</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="../../brand/pdf-utils.js"></script>
+    <script src="../../brand/shared-components.js"></script>
     <style>
+        /* V3 Design System - Calculator Styles */
+        /* Note: Base design tokens come from shared-components.js */
+
+        :root {
+            /* Status Colors for Calculator Results */
+            --status-excellent: #15803d;
+            --status-excellent-bg: #dcfce7;
+            --status-good: #1e40af;
+            --status-good-bg: #dbeafe;
+            --status-fair: #92400e;
+            --status-fair-bg: #fef3c7;
+            --status-poor: #991b1b;
+            --status-poor-bg: #fee2e2;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: #fafbfc;
-            min-height: 100vh;
-            padding: 20px;
-            color: #0f172a;
+            font-family: var(--font-body, 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif);
+            background: var(--cloud, #fafaf8);
+            color: var(--ink, #1a1a1a);
             line-height: 1.6;
+            min-height: 100vh;
         }
-        
+
         .container {
-            max-width: 1280px;
+            max-width: 900px;
             margin: 0 auto;
+            padding: 40px 24px 80px;
         }
-        
-        .header {
+
+        /* Header */
+        .page-header {
             text-align: center;
-            margin-bottom: 48px;
-            padding: 60px 20px 40px;
+            margin-bottom: 40px;
         }
-        
-        h1 {
-            color: #0f172a;
+
+        /* Icon styling handled by shared-components.js category system */
+
+        .category-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 107, 53, 0.12);
+            color: var(--orange, #ff6b35);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .category-badge i { width: 14px; height: 14px; }
+
+        .page-header h1 {
+            font-family: var(--font-display, 'Outfit', sans-serif);
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            font-weight: 800;
+            color: var(--ink, #1a1a1a);
             margin-bottom: 12px;
-            font-size: 3em;
-            font-weight: 700;
-            letter-spacing: -1.5px;
+            letter-spacing: -0.03em;
         }
-        
-        .subtitle {
-            color: #64748b;
-            font-size: 1.125rem;
-            font-weight: 400;
+
+        .page-header p {
+            font-size: 1.0625rem;
+            color: var(--slate, #4a4a4a);
             max-width: 600px;
             margin: 0 auto;
         }
-        
+
+        /* Load Button Bar */
+        .load-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        /* Section Cards */
         .section {
-            background: white;
+            background: var(--white);
             padding: 32px;
-            border-radius: 12px;
+            border-radius: 16px;
             margin-bottom: 24px;
-            border: 1px solid #e2e8f0;
-            transition: box-shadow 0.2s;
+            border: 1px solid var(--fog);
+            box-shadow: var(--shadow-sm);
         }
-        
-        .section:hover {
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
-        }
-        
+
         .section-title {
+            font-family: var(--font-display, 'Outfit', sans-serif);
             font-size: 1.125rem;
-            font-weight: 600;
-            color: #0f172a;
+            font-weight: 700;
+            color: var(--ink, #1a1a1a);
             margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            letter-spacing: -0.01em;
         }
-        
+
+        .section-title i {
+            width: 20px;
+            height: 20px;
+            color: var(--orange, #ff6b35);
+        }
+
+        /* Form Grid */
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 24px;
         }
-        
-        .input-group {
+
+        .form-group {
             display: flex;
             flex-direction: column;
         }
-        
+
         label {
-            font-weight: 500;
-            color: #0f172a;
+            font-weight: 600;
+            color: var(--ink);
             margin-bottom: 8px;
-            font-size: 0.875rem;
+            font-size: 14px;
         }
-        
+
         .help-text {
-            font-size: 0.8125rem;
-            color: #64748b;
+            font-size: 13px;
+            color: var(--stone);
             margin-top: 6px;
-            line-height: 1.5;
         }
-        
-        input[type="number"], input[type="text"] {
+
+        input[type="text"], select {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #cbd5e1;
+            padding: 12px 14px;
+            border: 2px solid var(--fog);
             border-radius: 8px;
-            font-size: 0.9375rem;
-            transition: all 0.15s ease;
-            background: white;
-            color: #0f172a;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+            background: var(--white);
+            color: var(--ink);
         }
-        
-        input[type="number"]:focus, input[type="text"]:focus {
+
+        input[type="text"]:focus, select:focus {
             outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
         }
-        
-        input[type="number"]:hover, input[type="text"]:hover {
-            border-color: #94a3b8;
+
+        input[type="text"]:hover, select:hover {
+            border-color: var(--slate);
         }
-        
-        .button-bar {
-            display: flex;
-            gap: 12px;
-            margin: 24px 0;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        button {
+
+        /* Buttons - V3 Design */
+        .btn {
             padding: 12px 24px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.9375rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            white-space: nowrap;
-            min-height: 44px;
-        }
-        
-        .btn-calculate {
-            background: #2563eb;
-            color: white;
-            padding: 14px 32px;
-            font-size: 1rem;
+            border-radius: var(--border-radius-md, 10px);
+            font-size: 15px;
             font-weight: 600;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-        }
-        
-        .btn-calculate:hover {
-            background: #1d4ed8;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-            transform: translateY(-1px);
-        }
-        
-        .btn-calculate:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 3px rgba(37, 99, 235, 0.3);
-        }
-        
-        .btn-secondary {
-            background: white;
-            color: #0f172a;
-            border: 1px solid #cbd5e1;
-            padding: 11px 20px;
-        }
-        
-        .btn-secondary:hover {
-            background: #f8fafc;
-            border-color: #94a3b8;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
-        .btn-secondary:active {
-            background: #f1f5f9;
-        }
-        
-        .btn-load {
-            background: white;
-            color: #0f172a;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 11px 20px;
-            font-size: 0.9375rem;
-            font-weight: 500;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all var(--duration-normal, 250ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
-            white-space: nowrap;
-            min-height: 44px;
+            font-family: var(--font-body, 'DM Sans', sans-serif);
+            text-decoration: none;
+        }
+
+        .btn i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--orange, #ff6b35) 0%, var(--orange-hover, #ff5722) 100%);
+            color: white;
+            padding: 16px 32px;
+            font-size: 16px;
+            box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.1)), var(--shadow-orange, 0 4px 14px rgba(255, 107, 53, 0.25));
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg, 0 10px 25px rgba(0,0,0,0.15)), 0 8px 20px rgba(255, 107, 53, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--white, #ffffff);
+            color: var(--ink, #1a1a1a);
+            border: 2px solid var(--fog, #f5f5f3);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--orange, #ff6b35);
+            color: var(--orange, #ff6b35);
+            background: var(--orange-subtle, rgba(255, 107, 53, 0.08));
+        }
+
+        .btn-load {
             position: relative;
             overflow: hidden;
         }
-        
-        .btn-load:hover {
-            background: #f8fafc;
-            border-color: #94a3b8;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
-        .btn-load:active {
-            background: #f1f5f9;
-        }
-        
+
         .btn-load input[type="file"] {
             position: absolute;
             left: 0;
@@ -217,452 +232,926 @@
             opacity: 0;
             cursor: pointer;
         }
-        
-        .button-group {
+
+        .button-center {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .button-bar {
             display: flex;
             gap: 12px;
+            margin: 32px 0;
             flex-wrap: wrap;
             justify-content: center;
         }
-        
-        .results-highlight {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            margin-bottom: 24px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 24px;
-        }
-        
-        .result-item {
-            background: #f8fafc;
-            padding: 24px;
-            border-radius: 10px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s;
-        }
-        
-        .result-item:hover {
-            border-color: #cbd5e1;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-        
-        .result-label {
-            font-size: 0.875rem;
-            color: #64748b;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .result-value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #0f172a;
-            line-height: 1.2;
-        }
-        
-        .result-value.positive {
-            color: #22c55e;
-        }
-        
-        .result-value.negative {
-            color: #ef4444;
-        }
-        
-        .result-value.highlight {
-            color: #2563eb;
-        }
-        
-        .info-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            color: #1e40af;
-            line-height: 1.7;
-        }
-        
-        .info-box strong {
-            color: #1e3a8a;
-        }
-        
-        .warning-box {
-            background: #fef3c7;
-            border: 1px solid #fde68a;
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            color: #92400e;
-            line-height: 1.7;
-        }
-        
-        .warning-box strong {
-            color: #78350f;
-        }
-        
-        .print-date {
-            text-align: center;
-            color: #64748b;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-        }
-        
-        .property-address {
-            text-align: center;
-            color: #0f172a;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            padding: 12px;
-            background: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+
+        /* Results Section */
+        .results {
+            display: none;
         }
 
+        .results.show {
+            display: block;
+        }
+
+        /* Result Unlocked Header - V3 Design */
+        .results-highlight {
+            background: var(--white, #ffffff);
+            padding: 40px;
+            border-radius: var(--border-radius-xl, 24px);
+            margin-bottom: 24px;
+            border: 2px solid var(--unlock, #10b981);
+            text-align: center;
+            animation: unlockGlow 0.8s ease forwards;
+            box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.07)), var(--shadow-unlock, 0 4px 14px rgba(16, 185, 129, 0.2));
+        }
+
+        @keyframes unlockGlow {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 40px 10px rgba(16, 185, 129, 0.15); }
+            100% { box-shadow: var(--shadow-md, 0 4px 6px rgba(0,0,0,0.07)), var(--shadow-unlock, 0 4px 14px rgba(16, 185, 129, 0.2)); }
+        }
+
+        .result-unlocked-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--unlock-subtle, rgba(16, 185, 129, 0.12));
+            color: var(--unlock, #10b981);
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            animation: unlockBounce 0.6s ease forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        @keyframes unlockBounce {
+            0% { transform: scale(0.8) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .result-unlocked-badge i {
+            width: 18px;
+            height: 18px;
+        }
+
+        .property-address-display {
+            color: var(--slate);
+            font-size: 15px;
+            margin-bottom: 16px;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .result-card {
+            background: var(--fog);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result-card-label {
+            font-size: 13px;
+            color: var(--slate);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .result-card-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .result-card-value.positive {
+            color: var(--status-excellent);
+        }
+
+        .result-card-value.negative {
+            color: var(--status-poor);
+        }
+
+        .result-card-value.highlight {
+            color: var(--orange);
+        }
+
+        /* Result Rows */
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--fog);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-row.highlight {
+            background: var(--fog);
+            margin: 0 -20px;
+            padding: 14px 20px;
+            border-radius: 8px;
+        }
+
+        .result-label {
+            color: var(--slate);
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .result-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--ink);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .result-value.positive {
+            color: var(--status-excellent);
+        }
+
+        .result-value.negative {
+            color: var(--status-poor);
+        }
+
+        /* Info Box */
+        .info-box {
+            background: rgba(0, 180, 216, 0.08);
+            border-left: 4px solid var(--blue);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: var(--slate);
+            line-height: 1.7;
+        }
+
+        .info-box strong {
+            color: var(--ink);
+        }
+
+        .info-box.success {
+            background: var(--status-excellent-bg);
+            border-left-color: var(--status-excellent);
+        }
+
+        .info-box.warning {
+            background: var(--status-fair-bg);
+            border-left-color: var(--status-fair);
+        }
+
+        /* Contact CTA */
+        .contact-cta {
+            background: var(--fog);
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .contact-cta-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .contact-cta-text {
+            text-align: left;
+        }
+
+        .contact-cta-text h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .contact-cta-text p {
+            font-size: 14px;
+            color: var(--slate);
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .contact-cta-actions {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .contact-cta-brokerage {
+            font-size: 12px;
+            color: var(--stone);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        /* Save Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            transform: scale(0.95);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--unlock-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-header-icon i {
+            width: 20px;
+            height: 20px;
+            color: var(--unlock);
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .modal-body label {
+            display: block;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .modal-body input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--fog);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .modal-body input:focus {
+            outline: none;
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .modal-file-ext {
+            font-size: 13px;
+            color: var(--stone);
+            margin-top: 8px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--charcoal);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow-lg);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast i {
+            width: 18px;
+            height: 18px;
+            color: var(--unlock);
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2em;
+            .page-header h1 {
+                font-size: 28px;
             }
-            
+
             .input-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .results-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
             }
-            
+
             .button-bar {
-                flex-direction: row;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-secondary {
+                width: 100%;
+                max-width: 280px;
+                justify-content: center;
+            }
+
+            .section {
+                padding: 24px;
+            }
+
+            .results-highlight {
+                padding: 32px 24px;
+            }
+
+            .contact-cta-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .contact-cta-text {
+                text-align: center;
+            }
+
+            .contact-cta-actions {
+                flex-direction: column;
                 width: 100%;
             }
-            
-            button, .btn-load {
-                flex: 1;
-                min-width: 140px;
-            }
-            
-            .btn-calculate {
+
+            .contact-cta-actions .btn {
                 width: 100%;
+                justify-content: center;
+            }
+
+            .result-card-value {
+                font-size: 20px;
             }
         }
-        
+
+        /* Print Styles */
         @media print {
             body {
                 background: white;
-                padding: 0;
             }
-            
-            .container {
-                max-width: 100%;
-            }
-            
-            .header {
-                padding: 30px 20px 20px;
-                border-bottom: 3px solid #2563eb;
-                page-break-after: avoid;
-            }
-            
-            h1 {
-                font-size: 2.25em;
-                color: #0f172a;
-                margin-bottom: 8px;
-            }
-            
-            .subtitle {
-                color: #64748b;
-                font-size: 1rem;
-            }
-            
-            .button-bar, button, .btn-load, #actionButtons {
+
+            .rr-nav, .rr-footer, .button-bar, .load-bar, .btn, .modal-overlay {
                 display: none !important;
             }
-            
-            .section {
-                page-break-inside: avoid;
+
+            .section, .results-highlight {
                 box-shadow: none;
-                border: 1px solid #e2e8f0;
-                margin-bottom: 20px;
-                padding: 24px;
-            }
-            
-            .section-title {
-                color: #2563eb;
-                font-size: 1.125rem;
-                font-weight: 600;
-                margin-bottom: 16px;
-                padding-bottom: 8px;
-                border-bottom: 2px solid #e2e8f0;
-            }
-            
-            .results-highlight {
-                box-shadow: none;
-                border: 2px solid #2563eb;
-                page-break-inside: avoid;
-                padding: 30px;
-                margin-bottom: 20px;
-            }
-            
-            .results-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-            }
-            
-            .result-item {
-                background: white;
-                border: 1px solid #e2e8f0;
-                padding: 16px;
+                border: 1px solid #ddd;
                 page-break-inside: avoid;
             }
-            
-            .result-label {
-                font-size: 0.8125rem;
-                color: #64748b;
-                margin-bottom: 6px;
-            }
-            
-            .result-value {
-                font-size: 1.5rem;
-                color: #0f172a;
-            }
-            
-            .result-value.positive {
-                color: #16a34a;
-            }
-            
-            .result-value.negative {
-                color: #dc2626;
-            }
-            
-            .result-value.highlight {
-                color: #2563eb;
-            }
-            
-            .info-box {
-                background: #f8fafc;
-                border: 1px solid #cbd5e1;
-                page-break-inside: avoid;
-                padding: 16px;
-                margin: 16px 0;
-            }
-            
-            .warning-box {
-                background: #fef9e7;
-                border: 1px solid #fde68a;
-                page-break-inside: avoid;
-                padding: 16px;
-                margin: 16px 0;
-            }
-            
-            .property-address {
-                font-size: 1.125rem;
-                font-weight: 600;
-                text-align: center;
-                margin-bottom: 16px;
-                padding: 10px;
-                background: #f8fafc;
-                border: 1px solid #e2e8f0;
-                page-break-after: avoid;
-            }
-            
-            .print-date {
-                text-align: center;
-                color: #64748b;
-                font-size: 0.875rem;
-                margin-bottom: 20px;
-                page-break-after: avoid;
-            }
-            
-            .input-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 16px;
-            }
-            
-            .input-group {
-                page-break-inside: avoid;
-                margin-bottom: 0;
-            }
-            
-            label {
-                font-size: 0.8125rem;
-                color: #475569;
-                font-weight: 600;
-            }
-            
-            input {
-                border: 1px solid #cbd5e1;
-                background: #f8fafc;
-                padding: 8px 10px;
-                font-size: 0.875rem;
-                color: #0f172a;
-            }
-            
-            .help-text {
-                display: none;
-            }
-            
-            /* Ensure proper page breaks */
-            .section:first-of-type {
-                page-break-before: avoid;
-            }
-            
-            /* Add page numbers */
-            @page {
-                margin: 0.75in;
-                @bottom-right {
-                    content: "Page " counter(page) " of " counter(pages);
-                    font-size: 9pt;
-                    color: #64748b;
-                }
+
+            .container {
+                max-width: 100%;
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Shared Header -->
+    <div id="site-header"></div>
+
     <div class="container">
-        <div class="header">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="category-badge">
+                <i data-lucide="trending-up"></i>
+                Investor Tool
+            </div>
+            <div class="page-header-icon">
+                <i data-lucide="trending-up"></i>
+            </div>
             <h1>Rental Investment Calculator</h1>
-            <div class="subtitle">Calculate your rental property ROI, cash flow, and key investment metrics</div>
+            <p>Calculate your rental property ROI, cash flow, cap rate, and key investment metrics</p>
         </div>
 
-        <div class="section">
-            <div class="section-title">Property Information</div>
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="propertyAddress">Property Address (Optional)</label>
-                    <input type="text" id="propertyAddress" placeholder="123 Main St, City, State">
-                    <div class="help-text">For reference on reports and saved data</div>
+        <!-- Load Bar -->
+        <div class="load-bar">
+            <button class="btn btn-secondary btn-load">
+                <i data-lucide="folder-open"></i>
+                Load Saved Calculation
+                <input type="file" id="load-file" accept=".rrroi,.json">
+            </button>
+        </div>
+
+        <form id="calc-form">
+            <!-- Property Information Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i data-lucide="home"></i>
+                    Property Information
+                </h2>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="property-address">Property Address (Optional)</label>
+                        <input type="text" id="property-address" placeholder="123 Main St, City, State">
+                        <div class="help-text">For reference on reports and saved data</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purchase-price">Purchase Price</label>
+                        <input type="text" id="purchase-price" inputmode="decimal" required>
+                        <div class="help-text">Total property acquisition price</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="improvement-costs">Cost of Improvements</label>
+                        <input type="text" id="improvement-costs" inputmode="decimal" value="$0.00">
+                        <div class="help-text">Planned upgrades or renovations</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="down-payment">Down Payment (%)</label>
+                        <input type="text" id="down-payment" inputmode="decimal" value="20%" required>
+                        <div class="help-text">Percentage of purchase price</div>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="purchasePrice">Purchase Price</label>
-                    <input type="number" id="purchasePrice" value="300000" step="1000" min="0">
-                    <div class="help-text">Total property acquisition price</div>
-                </div>
-                <div class="input-group">
-                    <label for="downPayment">Down Payment (%)</label>
-                    <input type="number" id="downPayment" value="20" step="1" min="0" max="100">
-                    <div class="help-text">Percentage of purchase price</div>
+
+                <!-- Lender CTA -->
+                <div style="margin-top: 24px; background: linear-gradient(135deg, var(--fog) 0%, var(--cloud) 100%); border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px;">
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--orange); flex-shrink: 0; overflow: hidden;">
+                            <img src="../../brand/images/partners/craig-mathieson.jpeg" alt="Craig Mathieson" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <div style="font-size: 13px; color: var(--orange); font-weight: 600; margin-bottom: 2px;">Need Investment Financing?</div>
+                            <div style="font-size: 17px; font-weight: 700; color: var(--ink);">Craig Mathieson</div>
+                            <div style="font-size: 13px; color: var(--slate);">Loan Officer · CF Mortgage</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+                            <a href="https://apply.myhometrac.com/#/milestones?referrerId=craig%40cfmtg.com&loanType=MORTGAGE" target="_blank" class="btn btn-primary" style="padding: 10px 16px; font-size: 14px;">
+                                <i data-lucide="file-text"></i>
+                                Apply Now
+                            </a>
+                            <a href="tel:207-318-5819" class="btn btn-secondary" style="padding: 10px 16px; font-size: 14px;">
+                                <i data-lucide="phone"></i>
+                                207-318-5819
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="section">
-            <div class="section-title">Financing Details</div>
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="interestRate">Interest Rate (%)</label>
-                    <input type="number" id="interestRate" value="6.5" step="0.01" min="0">
-                    <div class="help-text">Annual mortgage interest rate</div>
-                </div>
-                <div class="input-group">
-                    <label for="loanTerm">Loan Term (years)</label>
-                    <input type="number" id="loanTerm" value="30" step="1" min="1">
-                    <div class="help-text">Mortgage duration in years</div>
-                </div>
-                <div class="input-group">
-                    <label for="closingCosts">Closing Costs</label>
-                    <input type="number" id="closingCosts" value="6000" step="100" min="0">
-                    <div class="help-text">One-time closing expenses</div>
-                </div>
-                <div class="input-group">
-                    <label for="oneTimeCosts">Other One-Time Costs</label>
-                    <input type="number" id="oneTimeCosts" value="5000" step="100" min="0">
-                    <div class="help-text">Repairs, improvements, initial costs</div>
+            <!-- Financing Details Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i data-lucide="landmark"></i>
+                    Financing Details
+                </h2>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="interest-rate">Interest Rate (%)</label>
+                        <input type="text" id="interest-rate" inputmode="decimal" value="7.5%" required>
+                        <div class="help-text">Annual mortgage interest rate</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loan-term">Loan Term</label>
+                        <select id="loan-term">
+                            <option value="30" selected>30 years</option>
+                            <option value="25">25 years</option>
+                            <option value="20">20 years</option>
+                            <option value="15">15 years</option>
+                        </select>
+                        <div class="help-text">Mortgage duration</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="closing-costs">Closing Costs</label>
+                        <input type="text" id="closing-costs" inputmode="decimal" value="$6,000.00">
+                        <div class="help-text">One-time closing expenses</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rehab-costs">Rehab / Improvement Costs</label>
+                        <input type="text" id="rehab-costs" inputmode="decimal" value="$0.00">
+                        <div class="help-text">Initial repairs and improvements</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="section">
-            <div class="section-title">Income & Expenses</div>
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="monthlyRent">Monthly Rent</label>
-                    <input type="number" id="monthlyRent" value="2500" step="10" min="0">
-                    <div class="help-text">Expected monthly rental income</div>
-                </div>
-                <div class="input-group">
-                    <label for="propertyTax">Annual Property Tax</label>
-                    <input type="number" id="propertyTax" value="3600" step="100" min="0">
-                    <div class="help-text">Yearly property tax amount</div>
-                </div>
-                <div class="input-group">
-                    <label for="insurance">Annual Insurance</label>
-                    <input type="number" id="insurance" value="1200" step="10" min="0">
-                    <div class="help-text">Yearly property insurance</div>
-                </div>
-                <div class="input-group">
-                    <label for="maintenance">Monthly Maintenance</label>
-                    <input type="number" id="maintenance" value="200" step="10" min="0">
-                    <div class="help-text">Average monthly upkeep costs</div>
-                </div>
-                <div class="input-group">
-                    <label for="hoaFees">Monthly HOA Fees</label>
-                    <input type="number" id="hoaFees" value="0" step="10" min="0">
-                    <div class="help-text">Homeowners association fees</div>
-                </div>
-                <div class="input-group">
-                    <label for="otherCosts">Other Monthly Costs</label>
-                    <input type="number" id="otherCosts" value="0" step="10" min="0">
-                    <div class="help-text">Utilities, landscaping, etc.</div>
-                </div>
-                <div class="input-group">
-                    <label for="vacancy">Vacancy Rate (%)</label>
-                    <input type="number" id="vacancy" value="5" step="1" min="0" max="100">
-                    <div class="help-text">Expected vacancy percentage</div>
-                </div>
-                <div class="input-group">
-                    <label for="propertyMgmt">Property Management (%)</label>
-                    <input type="number" id="propertyMgmt" value="8" step="1" min="0" max="100">
-                    <div class="help-text">Management fee as % of rent</div>
+            <!-- Income Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i data-lucide="wallet"></i>
+                    Rental Income
+                </h2>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="monthly-rent">Monthly Rent</label>
+                        <input type="text" id="monthly-rent" inputmode="decimal" required>
+                        <div class="help-text">Expected monthly rental income</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="vacancy-rate">Vacancy Rate (%)</label>
+                        <input type="text" id="vacancy-rate" inputmode="decimal" value="5%">
+                        <div class="help-text">Expected vacancy percentage</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="button-bar" style="margin-top: 40px;">
-            <button class="btn-calculate" onclick="calculateInvestment()">Calculate Investment</button>
-        </div>
+            <!-- Operating Expenses Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i data-lucide="receipt"></i>
+                    Operating Expenses
+                </h2>
+                <div class="input-grid">
+                    <div class="form-group">
+                        <label for="property-tax">Annual Property Tax</label>
+                        <input type="text" id="property-tax" inputmode="decimal" required>
+                        <div class="help-text">Yearly property tax amount</div>
+                    </div>
 
-        <div class="button-bar" style="margin-top: 16px;">
-            <button class="btn-secondary" onclick="saveData()">💾 Save Data</button>
-            <label class="btn-load">
-                📁 Load Data
-                <input type="file" accept=".json" onchange="loadData(event)">
-            </label>
-        </div>
+                    <div class="form-group">
+                        <label for="insurance">Annual Insurance</label>
+                        <input type="text" id="insurance" inputmode="decimal" required>
+                        <div class="help-text">Yearly property insurance</div>
+                    </div>
 
-        <div id="results" style="display: none;">
-            <!-- Results will be displayed here -->
-        </div>
+                    <div class="form-group">
+                        <label for="maintenance">Monthly Maintenance</label>
+                        <input type="text" id="maintenance" inputmode="decimal" value="$200.00">
+                        <div class="help-text">Average monthly upkeep costs</div>
+                    </div>
 
-        <div id="actionButtons" class="button-bar" style="display: none; margin-top: 24px; margin-bottom: 40px;">
-            <button class="btn-secondary" onclick="printReport()">🖨️ Print Report</button>
-            <button class="btn-secondary" onclick="emailReport()">📧 Email Report</button>
+                    <div class="form-group">
+                        <label for="hoa-fees">Monthly HOA Fees</label>
+                        <input type="text" id="hoa-fees" inputmode="decimal" value="$0.00">
+                        <div class="help-text">Leave at $0 if no HOA</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="other-costs">Other Monthly Costs</label>
+                        <input type="text" id="other-costs" inputmode="decimal" value="$0.00">
+                        <div class="help-text">Utilities, landscaping, etc.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="property-mgmt">Property Management (%)</label>
+                        <input type="text" id="property-mgmt" inputmode="decimal" value="8%">
+                        <div class="help-text">Management fee as % of rent</div>
+                    </div>
+                </div>
+
+                <!-- Insurance Agent CTA -->
+                <div style="margin-top: 24px; background: linear-gradient(135deg, var(--fog) 0%, var(--cloud) 100%); border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px;">
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        <div style="width: 72px; height: 72px; border-radius: 50%; background: var(--blue); flex-shrink: 0; overflow: hidden;">
+                            <img src="../../brand/images/partners/katie-sherman.jpg" alt="Katie Sherman" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div style="flex: 1; min-width: 200px;">
+                            <div style="font-size: 13px; color: var(--blue); font-weight: 600; margin-bottom: 2px;">Need Landlord Insurance?</div>
+                            <div style="font-size: 17px; font-weight: 700; color: var(--ink);">Katie Sherman</div>
+                            <div style="font-size: 13px; color: var(--slate);">Sales Executive · Licensed in P&C, Life & Health</div>
+                            <div style="font-size: 12px; color: var(--stone); margin-top: 4px;">Coastal Insurance · Sevigney-Lyons · Lyons Agency</div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+                            <a href="tel:207-910-0164" class="btn btn-primary" style="padding: 10px 16px; font-size: 14px;">
+                                <i data-lucide="phone"></i>
+                                207-910-0164
+                            </a>
+                            <a href="mailto:katie@sevigneygroup.com" class="btn btn-secondary" style="padding: 10px 16px; font-size: 14px;">
+                                <i data-lucide="mail"></i>
+                                Email Katie
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculate Button -->
+            <div class="button-center">
+                <button type="submit" class="btn btn-primary">
+                    <i data-lucide="calculator"></i>
+                    Calculate Investment
+                </button>
+            </div>
+        </form>
+
+        <!-- Results Section -->
+        <div id="results" class="results">
+            <div class="results-highlight">
+                <div class="result-unlocked-badge">
+                    <i data-lucide="lock-open"></i>
+                    Analysis Complete
+                </div>
+                <div class="property-address-display" id="result-property-address"></div>
+
+                <div class="results-grid" id="key-metrics"></div>
+            </div>
+
+            <div class="section">
+                <h2 class="section-title">
+                    <i data-lucide="credit-card"></i>
+                    Monthly Breakdown
+                </h2>
+                <div id="monthly-breakdown"></div>
+            </div>
+
+            <div class="section" id="insights-section">
+                <h2 class="section-title">
+                    <i data-lucide="lightbulb"></i>
+                    Investment Insights
+                </h2>
+                <div id="insights-content"></div>
+            </div>
+
+            <div class="contact-cta">
+                <div class="contact-cta-content">
+                    <div class="contact-cta-text">
+                        <h3>Looking for investment properties in Maine?</h3>
+                        <p>I'm Richard Reynolds, a real estate agent in Southern Maine. I can help you find cash-flowing rentals and analyze deals.</p>
+                    </div>
+                    <div class="contact-cta-actions">
+                        <a href="tel:207-560-4883" class="btn btn-primary">
+                            <i data-lucide="phone"></i>
+                            207-560-4883
+                        </a>
+                        <a href="mailto:richard@homesweetmaine.com" class="btn btn-secondary">
+                            <i data-lucide="mail"></i>
+                            Email Me
+                        </a>
+                    </div>
+                </div>
+                <p class="contact-cta-brokerage">Home Sweet Maine of Keller Williams · Southern Maine</p>
+            </div>
+
+            <div class="button-bar">
+                <button type="button" class="btn btn-secondary" onclick="exportPDF()">
+                    <i data-lucide="file-text"></i>
+                    Download PDF
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="shareResults()">
+                    <i data-lucide="share-2"></i>
+                    Share
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="saveResults()">
+                    <i data-lucide="save"></i>
+                    Save
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                    <i data-lucide="rotate-ccw"></i>
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared Footer -->
+    <div id="site-footer"></div>
+
+    <!-- Save Modal -->
+    <div id="save-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-header-icon">
+                    <i data-lucide="save"></i>
+                </div>
+                <h3>Save Calculation</h3>
+            </div>
+            <div class="modal-body">
+                <label for="save-filename">File Name</label>
+                <input type="text" id="save-filename" placeholder="Enter a name for this calculation">
+                <p class="modal-file-ext">File will be saved as .rrroi</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeSaveModal()">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmSave()">
+                    <i data-lucide="download"></i>
+                    Save File
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        function calculateInvestment() {
-            const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
-            const downPaymentPct = parseFloat(document.getElementById('downPayment').value) || 0;
-            const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
-            const loanTerm = parseFloat(document.getElementById('loanTerm').value) || 0;
-            const closingCosts = parseFloat(document.getElementById('closingCosts').value) || 0;
-            const oneTimeCosts = parseFloat(document.getElementById('oneTimeCosts').value) || 0;
-            const monthlyRent = parseFloat(document.getElementById('monthlyRent').value) || 0;
-            const propertyTax = parseFloat(document.getElementById('propertyTax').value) || 0;
-            const insurance = parseFloat(document.getElementById('insurance').value) || 0;
-            const maintenance = parseFloat(document.getElementById('maintenance').value) || 0;
-            const hoaFees = parseFloat(document.getElementById('hoaFees').value) || 0;
-            const otherCosts = parseFloat(document.getElementById('otherCosts').value) || 0;
-            const vacancyRate = parseFloat(document.getElementById('vacancy').value) || 0;
-            const propertyMgmt = parseFloat(document.getElementById('propertyMgmt').value) || 0;
+        // Initialize shared components
+        RR.init({
+            category: 'investors',
+            hubUrl: '../',
+            videosUrl: '../../videos/',
+            aboutUrl: '../../about/',
+            contactUrl: '../../contact/'
+        });
 
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Get form elements
+        const form = document.getElementById('calc-form');
+        const results = document.getElementById('results');
+
+        // Input elements
+        const propertyAddressInput = document.getElementById('property-address');
+        const purchasePriceInput = document.getElementById('purchase-price');
+        const improvementCostsInput = document.getElementById('improvement-costs');
+        const downPaymentInput = document.getElementById('down-payment');
+        const interestRateInput = document.getElementById('interest-rate');
+        const loanTermSelect = document.getElementById('loan-term');
+        const closingCostsInput = document.getElementById('closing-costs');
+        const rehabCostsInput = document.getElementById('rehab-costs');
+        const monthlyRentInput = document.getElementById('monthly-rent');
+        const vacancyRateInput = document.getElementById('vacancy-rate');
+        const propertyTaxInput = document.getElementById('property-tax');
+        const insuranceInput = document.getElementById('insurance');
+        const maintenanceInput = document.getElementById('maintenance');
+        const hoaFeesInput = document.getElementById('hoa-fees');
+        const otherCostsInput = document.getElementById('other-costs');
+        const propertyMgmtInput = document.getElementById('property-mgmt');
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(amount);
+        }
+
+        // Parse currency string to number
+        function parseCurrency(str) {
+            if (!str) return 0;
+            return parseFloat(str.replace(/[^0-9.-]/g, '')) || 0;
+        }
+
+        // Parse percentage string to number
+        function parsePercent(str) {
+            if (!str) return 0;
+            return parseFloat(str.replace(/[^0-9.-]/g, '')) || 0;
+        }
+
+        // Format input as currency on blur
+        function formatCurrencyInput(input) {
+            input.addEventListener('focus', function() {
+                const value = parseCurrency(this.value);
+                if (value > 0) {
+                    this.value = value;
+                } else {
+                    this.value = '';
+                }
+            });
+
+            input.addEventListener('blur', function() {
+                const value = parseCurrency(this.value);
+                if (value > 0) {
+                    this.value = formatCurrency(value);
+                } else {
+                    this.value = '';
+                }
+            });
+        }
+
+        // Format input as percentage on blur
+        function formatPercentInput(input) {
+            input.addEventListener('focus', function() {
+                const value = parsePercent(this.value);
+                if (value > 0) {
+                    this.value = value;
+                } else {
+                    this.value = '';
+                }
+            });
+
+            input.addEventListener('blur', function() {
+                const value = parsePercent(this.value);
+                if (value > 0) {
+                    this.value = value + '%';
+                } else {
+                    this.value = '';
+                }
+            });
+        }
+
+        // Apply formatting to inputs
+        const currencyInputs = [purchasePriceInput, improvementCostsInput, closingCostsInput, rehabCostsInput, monthlyRentInput, propertyTaxInput, insuranceInput, maintenanceInput, hoaFeesInput, otherCostsInput];
+        currencyInputs.forEach(formatCurrencyInput);
+
+        const percentInputs = [downPaymentInput, interestRateInput, vacancyRateInput, propertyMgmtInput];
+        percentInputs.forEach(formatPercentInput);
+
+        // Format all inputs
+        function formatAllInputs() {
+            currencyInputs.forEach(input => {
+                const value = parseCurrency(input.value);
+                if (value > 0) {
+                    input.value = formatCurrency(value);
+                }
+            });
+            percentInputs.forEach(input => {
+                const value = parsePercent(input.value);
+                if (value > 0) {
+                    input.value = value + '%';
+                }
+            });
+        }
+
+        // Format default values on page load
+        formatAllInputs();
+
+        // Store calculation results
+        let calcResults = {};
+
+        // Calculate investment
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const purchasePrice = parseCurrency(purchasePriceInput.value);
+            const improvementCosts = parseCurrency(improvementCostsInput.value);
+            const downPaymentPct = parsePercent(downPaymentInput.value);
+            const interestRate = parsePercent(interestRateInput.value);
+            const loanTerm = parseInt(loanTermSelect.value);
+            const closingCosts = parseCurrency(closingCostsInput.value);
+            const rehabCosts = parseCurrency(rehabCostsInput.value);
+            const monthlyRent = parseCurrency(monthlyRentInput.value);
+            const vacancyRate = parsePercent(vacancyRateInput.value);
+            const propertyTax = parseCurrency(propertyTaxInput.value);
+            const insurance = parseCurrency(insuranceInput.value);
+            const maintenance = parseCurrency(maintenanceInput.value);
+            const hoaFees = parseCurrency(hoaFeesInput.value);
+            const otherCosts = parseCurrency(otherCostsInput.value);
+            const propertyMgmt = parsePercent(propertyMgmtInput.value);
+
+            if (purchasePrice === 0) return;
+
+            // Calculate loan details
             const downPaymentAmount = purchasePrice * (downPaymentPct / 100);
             const loanAmount = purchasePrice - downPaymentAmount;
             const monthlyInterestRate = (interestRate / 100) / 12;
@@ -673,6 +1162,7 @@
                 monthlyMortgage = loanAmount * (monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) / (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
             }
 
+            // Calculate income and expenses
             const effectiveMonthlyRent = monthlyRent * (1 - vacancyRate / 100);
             const propertyMgmtFee = effectiveMonthlyRent * (propertyMgmt / 100);
             const monthlyPropertyTax = propertyTax / 12;
@@ -682,248 +1172,429 @@
             const monthlyCashFlow = effectiveMonthlyRent - totalMonthlyExpenses;
             const annualCashFlow = monthlyCashFlow * 12;
 
-            const totalInvestment = downPaymentAmount + closingCosts + oneTimeCosts;
+            // Calculate investment metrics
+            const totalInvestment = downPaymentAmount + closingCosts + rehabCosts + improvementCosts;
             const cashOnCashReturn = totalInvestment > 0 ? (annualCashFlow / totalInvestment) * 100 : 0;
 
+            // NOI and Cap Rate
             const annualIncome = monthlyRent * 12 * (1 - vacancyRate / 100);
             const annualOperatingExpenses = (monthlyPropertyTax + monthlyInsurance + maintenance + hoaFees + otherCosts + propertyMgmtFee) * 12;
             const noi = annualIncome - annualOperatingExpenses;
             const capRate = purchasePrice > 0 ? (noi / purchasePrice) * 100 : 0;
 
-            displayResults({
-                totalInvestment,
-                monthlyMortgage,
+            // Store results
+            calcResults = {
+                propertyAddress: propertyAddressInput.value || 'Investment Property',
+                purchasePrice,
+                improvementCosts,
+                downPaymentPct,
+                downPaymentAmount,
+                loanAmount,
+                interestRate,
+                loanTerm,
+                closingCosts,
+                rehabCosts,
+                monthlyRent,
+                vacancyRate,
                 effectiveMonthlyRent,
+                monthlyMortgage,
+                monthlyPropertyTax,
+                monthlyInsurance,
+                maintenance,
+                hoaFees,
+                otherCosts,
+                propertyMgmtFee,
                 totalMonthlyExpenses,
                 monthlyCashFlow,
                 annualCashFlow,
+                totalInvestment,
                 cashOnCashReturn,
-                capRate,
                 noi,
-                downPaymentAmount
-            });
-        }
-
-        function displayResults(results) {
-            const resultsDiv = document.getElementById('results');
-            const actionButtons = document.getElementById('actionButtons');
-            
-            resultsDiv.style.display = 'block';
-            actionButtons.style.display = 'flex';
-            
-            const address = document.getElementById('propertyAddress').value;
-            const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            
-            const addressHTML = address ? `<div class="property-address">📍 ${address}</div>` : '';
-            
-            let html = '<div class="results-highlight">';
-            html += '<div class="section-title">Investment Analysis</div>';
-            html += '<div class="print-date">Report Date: ' + today + '</div>';
-            html += addressHTML;
-            html += '<div class="results-grid">';
-            
-            // Key Metrics
-            html += createResultCard('Total Investment', results.totalInvestment, 'highlight');
-            html += createResultCard('Monthly Cash Flow', results.monthlyCashFlow, results.monthlyCashFlow >= 0 ? 'positive' : 'negative', true);
-            html += createResultCard('Annual Cash Flow', results.annualCashFlow, results.annualCashFlow >= 0 ? 'positive' : 'negative', true);
-            html += createResultCard('Cash-on-Cash Return', results.cashOnCashReturn, results.cashOnCashReturn >= 0 ? 'positive' : 'negative', false, true);
-            html += createResultCard('Cap Rate', results.capRate, results.capRate >= 0 ? 'positive' : 'negative', false, true);
-            html += createResultCard('Net Operating Income', results.noi, results.noi >= 0 ? 'positive' : 'negative', true);
-            
-            html += '</div></div>';
-            
-            // Breakdown Section
-            html += '<div class="section">';
-            html += '<div class="section-title">Monthly Breakdown</div>';
-            html += '<div class="results-grid">';
-            html += createResultCard('Effective Monthly Rent', results.effectiveMonthlyRent, null);
-            html += createResultCard('Monthly Mortgage', results.monthlyMortgage, null);
-            html += createResultCard('Total Monthly Expenses', results.totalMonthlyExpenses, null);
-            html += '</div>';
-            html += '</div>';
-            
-            // Investment Insights
-            html += generateInsights(results);
-            
-            resultsDiv.innerHTML = html;
-            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        function createResultCard(label, value, colorClass = null, showSign = false, isPercent = false) {
-            let displayValue;
-            const numValue = typeof value === 'number' ? value : parseFloat(value);
-            
-            if (isPercent) {
-                const sign = showSign && numValue >= 0 ? '+' : '';
-                displayValue = sign + numValue.toFixed(2) + '%';
-            } else {
-                const sign = showSign && numValue >= 0 ? '+' : '';
-                displayValue = (numValue < 0 && !showSign ? '-' : sign) + formatCurrency(Math.abs(numValue));
-            }
-            
-            const valueClass = colorClass ? `result-value ${colorClass}` : 'result-value';
-            
-            return `
-                <div class="result-item">
-                    <div class="result-label">${label}</div>
-                    <div class="${valueClass}">${displayValue}</div>
-                </div>
-            `;
-        }
-
-        function generateInsights(results) {
-            let html = '<div class="section">';
-            html += '<div class="section-title">Investment Insights</div>';
-            
-            // Cash Flow Analysis
-            if (results.monthlyCashFlow > 0) {
-                html += '<div class="info-box">';
-                html += '<strong>✅ Positive Cash Flow</strong><br><br>';
-                html += 'This property generates positive monthly cash flow of <strong>' + formatCurrency(results.monthlyCashFlow) + '</strong>, ';
-                html += 'meaning it pays for itself and puts money in your pocket each month!';
-                html += '</div>';
-            } else if (results.monthlyCashFlow < 0) {
-                html += '<div class="warning-box">';
-                html += '<strong>⚠️ Negative Cash Flow</strong><br><br>';
-                html += 'This property requires you to contribute <strong>' + formatCurrency(Math.abs(results.monthlyCashFlow)) + '</strong> ';
-                html += 'per month to cover expenses. Consider negotiating a lower purchase price or increasing rent.';
-                html += '</div>';
-            }
-            
-            // ROI Analysis
-            html += '<div class="info-box">';
-            html += '<strong>📊 Return on Investment</strong><br><br>';
-            
-            if (results.cashOnCashReturn >= 8) {
-                html += '• <strong>Excellent!</strong> Your cash-on-cash return of ' + results.cashOnCashReturn.toFixed(2) + '% exceeds the typical 8% target for rental properties.<br>';
-            } else if (results.cashOnCashReturn >= 4) {
-                html += '• <strong>Good:</strong> Your cash-on-cash return of ' + results.cashOnCashReturn.toFixed(2) + '% is reasonable, though there may be better opportunities.<br>';
-            } else if (results.cashOnCashReturn >= 0) {
-                html += '• <strong>Consider carefully:</strong> Your cash-on-cash return of ' + results.cashOnCashReturn.toFixed(2) + '% is below typical investment standards.<br>';
-            } else {
-                html += '• <strong>Warning:</strong> Negative return of ' + results.cashOnCashReturn.toFixed(2) + '% means you\'re losing money on this investment.<br>';
-            }
-            
-            if (results.capRate >= 8) {
-                html += '• <strong>Strong Cap Rate:</strong> At ' + results.capRate.toFixed(2) + '%, this property shows solid earning potential.<br>';
-            } else if (results.capRate >= 5) {
-                html += '• <strong>Moderate Cap Rate:</strong> At ' + results.capRate.toFixed(2) + '%, returns are in the acceptable range.<br>';
-            } else if (results.capRate >= 0) {
-                html += '• <strong>Low Cap Rate:</strong> At ' + results.capRate.toFixed(2) + '%, this may not be an ideal investment property.<br>';
-            }
-            
-            html += '</div>';
-            
-            // Next Steps
-            html += '<div class="info-box">';
-            html += '<strong>🎯 Next Steps</strong><br><br>';
-            html += '• <strong>Due Diligence:</strong> Conduct thorough property inspection and review comparable properties<br>';
-            html += '• <strong>Verify Numbers:</strong> Confirm rental rates, property taxes, and insurance costs with local data<br>';
-            html += '• <strong>Consider Appreciation:</strong> Factor in potential property value growth over time<br>';
-            html += '• <strong>Plan for Reserves:</strong> Set aside 3-6 months of expenses for unexpected costs<br>';
-            html += '• <strong>Tax Benefits:</strong> Consult with a tax professional about deductions and depreciation';
-            html += '</div>';
-            
-            html += '</div>';
-            return html;
-        }
-
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(value);
-        }
-
-        function saveData() {
-            const data = {
-                propertyAddress: document.getElementById('propertyAddress').value,
-                purchasePrice: document.getElementById('purchasePrice').value,
-                downPayment: document.getElementById('downPayment').value,
-                interestRate: document.getElementById('interestRate').value,
-                loanTerm: document.getElementById('loanTerm').value,
-                closingCosts: document.getElementById('closingCosts').value,
-                oneTimeCosts: document.getElementById('oneTimeCosts').value,
-                monthlyRent: document.getElementById('monthlyRent').value,
-                propertyTax: document.getElementById('propertyTax').value,
-                insurance: document.getElementById('insurance').value,
-                maintenance: document.getElementById('maintenance').value,
-                hoaFees: document.getElementById('hoaFees').value,
-                otherCosts: document.getElementById('otherCosts').value,
-                vacancy: document.getElementById('vacancy').value,
-                propertyMgmt: document.getElementById('propertyMgmt').value
+                capRate
             };
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            displayResults();
+        });
+
+        function displayResults() {
+            const r = calcResults;
+
+            // Property address
+            document.getElementById('result-property-address').textContent = r.propertyAddress;
+
+            // Key metrics grid
+            document.getElementById('key-metrics').innerHTML = `
+                <div class="result-card">
+                    <div class="result-card-label">Total Investment</div>
+                    <div class="result-card-value highlight">${formatCurrency(r.totalInvestment)}</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">Monthly Cash Flow</div>
+                    <div class="result-card-value ${r.monthlyCashFlow >= 0 ? 'positive' : 'negative'}">${r.monthlyCashFlow >= 0 ? '+' : ''}${formatCurrency(r.monthlyCashFlow)}</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">Annual Cash Flow</div>
+                    <div class="result-card-value ${r.annualCashFlow >= 0 ? 'positive' : 'negative'}">${r.annualCashFlow >= 0 ? '+' : ''}${formatCurrency(r.annualCashFlow)}</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">Cash-on-Cash Return</div>
+                    <div class="result-card-value ${r.cashOnCashReturn >= 0 ? 'positive' : 'negative'}">${r.cashOnCashReturn.toFixed(2)}%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">Cap Rate</div>
+                    <div class="result-card-value ${r.capRate >= 0 ? 'positive' : 'negative'}">${r.capRate.toFixed(2)}%</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-card-label">Net Operating Income</div>
+                    <div class="result-card-value ${r.noi >= 0 ? 'positive' : 'negative'}">${formatCurrency(r.noi)}/yr</div>
+                </div>
+            `;
+
+            // Monthly breakdown
+            document.getElementById('monthly-breakdown').innerHTML = `
+                <div class="result-row">
+                    <span class="result-label">Gross Monthly Rent</span>
+                    <span class="result-value">${formatCurrency(r.monthlyRent)}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Vacancy Loss (${r.vacancyRate}%)</span>
+                    <span class="result-value negative">-${formatCurrency(r.monthlyRent - r.effectiveMonthlyRent)}</span>
+                </div>
+                <div class="result-row highlight">
+                    <span class="result-label">Effective Rent</span>
+                    <span class="result-value">${formatCurrency(r.effectiveMonthlyRent)}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Mortgage (P&I)</span>
+                    <span class="result-value">-${formatCurrency(r.monthlyMortgage)}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Property Tax</span>
+                    <span class="result-value">-${formatCurrency(r.monthlyPropertyTax)}</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Insurance</span>
+                    <span class="result-value">-${formatCurrency(r.monthlyInsurance)}</span>
+                </div>
+                ${r.maintenance > 0 ? `<div class="result-row"><span class="result-label">Maintenance</span><span class="result-value">-${formatCurrency(r.maintenance)}</span></div>` : ''}
+                ${r.hoaFees > 0 ? `<div class="result-row"><span class="result-label">HOA Fees</span><span class="result-value">-${formatCurrency(r.hoaFees)}</span></div>` : ''}
+                ${r.otherCosts > 0 ? `<div class="result-row"><span class="result-label">Other Costs</span><span class="result-value">-${formatCurrency(r.otherCosts)}</span></div>` : ''}
+                ${r.propertyMgmtFee > 0 ? `<div class="result-row"><span class="result-label">Property Management</span><span class="result-value">-${formatCurrency(r.propertyMgmtFee)}</span></div>` : ''}
+                <div class="result-row highlight">
+                    <span class="result-label">Monthly Cash Flow</span>
+                    <span class="result-value ${r.monthlyCashFlow >= 0 ? 'positive' : 'negative'}">${r.monthlyCashFlow >= 0 ? '+' : ''}${formatCurrency(r.monthlyCashFlow)}</span>
+                </div>
+            `;
+
+            // Investment insights
+            let insightsHTML = '';
+
+            if (r.monthlyCashFlow > 0) {
+                insightsHTML += `
+                    <div class="info-box success">
+                        <strong>Positive Cash Flow</strong><br><br>
+                        This property generates positive monthly cash flow of <strong>${formatCurrency(r.monthlyCashFlow)}</strong>, meaning it pays for itself and puts money in your pocket each month.
+                    </div>
+                `;
+            } else if (r.monthlyCashFlow < 0) {
+                insightsHTML += `
+                    <div class="info-box warning">
+                        <strong>Negative Cash Flow</strong><br><br>
+                        This property requires you to contribute <strong>${formatCurrency(Math.abs(r.monthlyCashFlow))}</strong> per month to cover expenses. Consider negotiating a lower purchase price or increasing rent.
+                    </div>
+                `;
+            }
+
+            insightsHTML += `<div class="info-box"><strong>Return Analysis</strong><br><br>`;
+
+            if (r.cashOnCashReturn >= 8) {
+                insightsHTML += `<strong>Excellent!</strong> Your cash-on-cash return of ${r.cashOnCashReturn.toFixed(2)}% exceeds the typical 8% target for rental properties.<br><br>`;
+            } else if (r.cashOnCashReturn >= 4) {
+                insightsHTML += `<strong>Acceptable:</strong> Your cash-on-cash return of ${r.cashOnCashReturn.toFixed(2)}% is reasonable, though there may be better opportunities.<br><br>`;
+            } else {
+                insightsHTML += `<strong>Consider carefully:</strong> Your cash-on-cash return of ${r.cashOnCashReturn.toFixed(2)}% is below typical investment standards.<br><br>`;
+            }
+
+            if (r.capRate >= 8) {
+                insightsHTML += `<strong>Strong Cap Rate:</strong> At ${r.capRate.toFixed(2)}%, this property shows solid earning potential.`;
+            } else if (r.capRate >= 5) {
+                insightsHTML += `<strong>Moderate Cap Rate:</strong> At ${r.capRate.toFixed(2)}%, returns are in the acceptable range.`;
+            } else {
+                insightsHTML += `<strong>Low Cap Rate:</strong> At ${r.capRate.toFixed(2)}%, this may not be an ideal investment property.`;
+            }
+
+            insightsHTML += `</div>`;
+
+            document.getElementById('insights-content').innerHTML = insightsHTML;
+
+            // Show results
+            results.classList.add('show');
+            results.scrollIntoView({ behavior: 'smooth' });
+            lucide.createIcons();
+        }
+
+        // Share results
+        async function shareResults() {
+            const r = calcResults;
+            const shareTitle = `Rental Investment Analysis - ${r.propertyAddress}`;
+            const shareText =
+                `RENTAL INVESTMENT ANALYSIS\n` +
+                `============================\n\n` +
+                `Property: ${r.propertyAddress}\n\n` +
+                `KEY METRICS\n` +
+                `Total Investment: ${formatCurrency(r.totalInvestment)}\n` +
+                `Monthly Cash Flow: ${formatCurrency(r.monthlyCashFlow)}\n` +
+                `Annual Cash Flow: ${formatCurrency(r.annualCashFlow)}\n` +
+                `Cash-on-Cash Return: ${r.cashOnCashReturn.toFixed(2)}%\n` +
+                `Cap Rate: ${r.capRate.toFixed(2)}%\n` +
+                `NOI: ${formatCurrency(r.noi)}/yr\n\n` +
+                `---\n` +
+                `Generated at richardreynolds.tools\n` +
+                `Questions? Contact Richard Reynolds: 207-560-4883`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: shareTitle, text: shareText });
+                    return;
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(shareText);
+                showToast('Copied to clipboard');
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareText;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Copied to clipboard');
+            }
+        }
+
+        function showToast(message) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i data-lucide="check"></i> ${message}`;
+            document.body.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Export PDF
+        function exportPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const pdf = new RR_PDF(doc);
+            const r = calcResults;
+
+            // Draw header
+            let y = pdf.drawHeader('Rental Investment Analysis');
+
+            // Draw main result
+            const statusText = r.monthlyCashFlow >= 0 ? `+${formatCurrency(r.monthlyCashFlow)}/mo Cash Flow` : `${formatCurrency(r.monthlyCashFlow)}/mo Cash Flow`;
+            y = pdf.drawResultBox(y, 'CASH-ON-CASH RETURN', r.propertyAddress, r.cashOnCashReturn.toFixed(2) + '%', statusText);
+
+            // Key Metrics (left column)
+            y += 4;
+            const startY = y;
+            doc.setTextColor(...pdf.colors.ink);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Key Metrics', 20, y);
+            doc.setDrawColor(230, 230, 230);
+            doc.line(20, y + 2, 100, y + 2);
+            y += 7;
+            y = pdf.drawDataRow(y, 'Purchase Price', formatCurrency(r.purchasePrice), false, 20, 100);
+            y = pdf.drawDataRow(y, 'Down Payment', formatCurrency(r.downPaymentAmount), false, 20, 100);
+            y = pdf.drawDataRow(y, 'Total Investment', formatCurrency(r.totalInvestment), true, 20, 100);
+            y = pdf.drawDataRow(y, 'Monthly Cash Flow', formatCurrency(r.monthlyCashFlow), false, 20, 100);
+            y = pdf.drawDataRow(y, 'Annual Cash Flow', formatCurrency(r.annualCashFlow), false, 20, 100);
+
+            // Investment Returns (right column)
+            let y2 = startY;
+            doc.setTextColor(...pdf.colors.ink);
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Investment Returns', 110, y2);
+            doc.line(110, y2 + 2, 190, y2 + 2);
+            y2 += 7;
+            y2 = pdf.drawDataRow(y2, 'Cash-on-Cash', r.cashOnCashReturn.toFixed(2) + '%', false, 110, 190);
+            y2 = pdf.drawDataRow(y2, 'Cap Rate', r.capRate.toFixed(2) + '%', false, 110, 190);
+            y2 = pdf.drawDataRow(y2, 'NOI', formatCurrency(r.noi) + '/yr', false, 110, 190);
+            y2 = pdf.drawDataRow(y2, 'Monthly Rent', formatCurrency(r.monthlyRent), false, 110, 190);
+            y2 = pdf.drawDataRow(y2, 'Mortgage (P&I)', formatCurrency(r.monthlyMortgage), false, 110, 190);
+
+            // Monthly Breakdown
+            y = Math.max(y, y2) + 6;
+            y = pdf.drawSectionHeader(y, 'Monthly Breakdown', true);
+            y = pdf.drawDataRow(y, 'Effective Rent', formatCurrency(r.effectiveMonthlyRent));
+            y = pdf.drawDataRow(y, 'Total Expenses', formatCurrency(r.totalMonthlyExpenses));
+            y = pdf.drawDataRow(y, 'Net Cash Flow', formatCurrency(r.monthlyCashFlow), true);
+
+            // Contact CTA
+            y += 2;
+            y = pdf.drawContactCTA(y);
+
+            // Footer
+            pdf.drawFooter(y);
+
+            // Save
+            const filename = pdf.generateFilename('Investment-Analysis', r.propertyAddress);
+            doc.save(filename);
+        }
+
+        // Save Modal
+        const saveModal = document.getElementById('save-modal');
+        const saveFilenameInput = document.getElementById('save-filename');
+
+        function saveResults() {
+            const address = propertyAddressInput.value || 'Investment Analysis';
+            const cleanAddress = address
+                .replace(/,/g, '')
+                .replace(/[^a-zA-Z0-9\s-]/g, '')
+                .replace(/\s+/g, ' ')
+                .substring(0, 50)
+                .trim();
+
+            saveFilenameInput.value = cleanAddress;
+            saveModal.classList.add('show');
+
+            setTimeout(() => {
+                saveFilenameInput.focus();
+                saveFilenameInput.select();
+            }, 100);
+        }
+
+        function closeSaveModal() {
+            saveModal.classList.remove('show');
+        }
+
+        saveModal.addEventListener('click', function(e) {
+            if (e.target === saveModal) {
+                closeSaveModal();
+            }
+        });
+
+        saveFilenameInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                confirmSave();
+            } else if (e.key === 'Escape') {
+                closeSaveModal();
+            }
+        });
+
+        function confirmSave() {
+            const userFilename = saveFilenameInput.value.trim();
+            if (!userFilename) {
+                saveFilenameInput.focus();
+                return;
+            }
+
+            const data = {
+                timestamp: new Date().toISOString(),
+                calculator: 'rental-investment',
+                inputs: {
+                    propertyAddress: propertyAddressInput.value,
+                    purchasePrice: parseCurrency(purchasePriceInput.value),
+                    improvementCosts: parseCurrency(improvementCostsInput.value),
+                    downPayment: parsePercent(downPaymentInput.value),
+                    interestRate: parsePercent(interestRateInput.value),
+                    loanTerm: loanTermSelect.value,
+                    closingCosts: parseCurrency(closingCostsInput.value),
+                    rehabCosts: parseCurrency(rehabCostsInput.value),
+                    monthlyRent: parseCurrency(monthlyRentInput.value),
+                    vacancyRate: parsePercent(vacancyRateInput.value),
+                    propertyTax: parseCurrency(propertyTaxInput.value),
+                    insurance: parseCurrency(insuranceInput.value),
+                    maintenance: parseCurrency(maintenanceInput.value),
+                    hoaFees: parseCurrency(hoaFeesInput.value),
+                    otherCosts: parseCurrency(otherCostsInput.value),
+                    propertyMgmt: parsePercent(propertyMgmtInput.value)
+                },
+                results: calcResults
+            };
+
+            const cleanFilename = userFilename
+                .replace(/[^a-zA-Z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .substring(0, 100);
+            const filename = `${cleanFilename}.rrroi`;
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/octet-stream' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            const address = data.propertyAddress ? data.propertyAddress.replace(/[^a-z0-9]/gi, '_') : 'property';
-            a.download = `rental_investment_${address}_${new Date().toISOString().split('T')[0]}.json`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+
+            closeSaveModal();
+            showToast('Calculation saved');
         }
 
-        function loadData(event) {
-            const file = event.target.files[0];
+        // Reset form
+        function resetForm() {
+            form.reset();
+            results.classList.remove('show');
+            calcResults = {};
+            formatAllInputs();
+        }
+
+        // Load file
+        document.getElementById('load-file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function(event) {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    document.getElementById('propertyAddress').value = data.propertyAddress || '';
-                    document.getElementById('purchasePrice').value = data.purchasePrice || 0;
-                    document.getElementById('downPayment').value = data.downPayment || 0;
-                    document.getElementById('interestRate').value = data.interestRate || 0;
-                    document.getElementById('loanTerm').value = data.loanTerm || 0;
-                    document.getElementById('closingCosts').value = data.closingCosts || 0;
-                    document.getElementById('oneTimeCosts').value = data.oneTimeCosts || 0;
-                    document.getElementById('monthlyRent').value = data.monthlyRent || 0;
-                    document.getElementById('propertyTax').value = data.propertyTax || 0;
-                    document.getElementById('insurance').value = data.insurance || 0;
-                    document.getElementById('maintenance').value = data.maintenance || 0;
-                    document.getElementById('hoaFees').value = data.hoaFees || 0;
-                    document.getElementById('otherCosts').value = data.otherCosts || 0;
-                    document.getElementById('vacancy').value = data.vacancy || 0;
-                    document.getElementById('propertyMgmt').value = data.propertyMgmt || 0;
+                    const data = JSON.parse(event.target.result);
 
-                    alert('Data loaded successfully!');
+                    propertyAddressInput.value = data.inputs.propertyAddress || '';
+                    purchasePriceInput.value = data.inputs.purchasePrice || '';
+                    improvementCostsInput.value = data.inputs.improvementCosts || '0';
+                    downPaymentInput.value = data.inputs.downPayment || '20';
+                    interestRateInput.value = data.inputs.interestRate || '7.5';
+                    loanTermSelect.value = data.inputs.loanTerm || '30';
+                    closingCostsInput.value = data.inputs.closingCosts || '6000';
+                    rehabCostsInput.value = data.inputs.rehabCosts || '0';
+                    monthlyRentInput.value = data.inputs.monthlyRent || '';
+                    vacancyRateInput.value = data.inputs.vacancyRate || '5';
+                    propertyTaxInput.value = data.inputs.propertyTax || '';
+                    insuranceInput.value = data.inputs.insurance || '';
+                    maintenanceInput.value = data.inputs.maintenance || '200';
+                    hoaFeesInput.value = data.inputs.hoaFees || '0';
+                    otherCostsInput.value = data.inputs.otherCosts || '0';
+                    propertyMgmtInput.value = data.inputs.propertyMgmt || '8';
+
+                    formatAllInputs();
+                    form.scrollIntoView({ behavior: 'smooth' });
+                    showToast('Calculation loaded');
+
                 } catch (error) {
-                    alert('Error loading file. Please make sure it is a valid JSON file.');
+                    console.error('Load error:', error);
+                    showToast('Error loading file');
                 }
             };
             reader.readAsText(file);
-        }
-
-        function printReport() {
-            window.print();
-        }
-
-        function emailReport() {
-            const address = document.getElementById('propertyAddress').value || 'Property';
-            const resultsDiv = document.getElementById('results');
-            
-            if (resultsDiv.style.display === 'none') {
-                alert('Please calculate the investment results first before emailing.');
-                return;
-            }
-
-            const subject = `Rental Investment Analysis - ${address}`;
-            const body = `Rental Investment Analysis Report\n\n` +
-                `Property: ${address}\n` +
-                `Purchase Price: ${document.getElementById('purchasePrice').value}\n` +
-                `Monthly Rent: ${document.getElementById('monthlyRent').value}\n\n` +
-                `View the complete analysis at: ${window.location.href}\n\n` +
-                `Note: Please calculate and review the full report for detailed metrics.`;
-
-            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        }
+            e.target.value = '';
+        });
     </script>
 </body>
 </html>
